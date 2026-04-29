@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Study B - Feasible Region (3D)</title>
+    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0d1117;
+            color: #c9d1d9;
+            margin: 0;
+            padding: 30px;
+            text-align: center;
+        }
+        h1 {
+            color: #58a6ff;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            color: #8b949e;
+            margin-bottom: 25px;
+        }
+        .plot-box {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 750px;
+            margin: 0 auto;
+        }
+        .plot-box h2 {
+            color: #f0883e;
+            margin-top: 0;
+            font-size: 1.15em;
+        }
+        .plot-box p {
+            font-size: 0.85em;
+            color: #8b949e;
+            margin: 5px 0 15px;
+        }
+        .plot {
+            width: 100%;
+            height: 600px;
+        }
+        .legend-note {
+            text-align: left;
+            font-size: 0.8em;
+            margin-top: 12px;
+            padding: 12px;
+            background: #0d1117;
+            border-radius: 8px;
+            line-height: 1.7;
+        }
+        .legend-note span {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin-right: 6px;
+            border-radius: 3px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+
+<h1>SunCoast Growers Cooperative — LP Feasible Region</h1>
+<p class="subtitle">Interactive 3D plot · Drag to rotate · Scroll to zoom · Right-drag to pan · Hover over surfaces for labels</p>
+
+<div class="plot-box">
+    <h2>Scenario 1 — C1 Equality: \(x_1 + x_2 + x_3 = 800\)</h2>
+    <p>Feasible region is a <b>flat 2D polygon</b> on the slanted storage plane. Bounded by the apple minimum, plum maximum, and orange minimum constraints.</p>
+    <div id="plot" class="plot"></div>
+    <div class="legend-note">
+        <span style="background:#636efa;"></span> <b>Feasible polygon</b> (on storage plane \(x_1 + x_2 + x_3 = 800\))<br>
+        <span style="background:rgba(99,110,250,0.22);"></span> Storage plane: \(x_1 + x_2 + x_3 = 800\)<br>
+        <br>
+        <b>Vertices:</b><br>
+        &nbsp;&nbsp;V₁ = (160, 520, 120)&nbsp;&nbsp;|&nbsp;&nbsp;V₂ = (160, 320, 320)&nbsp;&nbsp;|&nbsp;&nbsp;V₃ = (360, 320, 120)<br>
+        <br>
+        <i>Hover over the coloured triangle to identify the feasible region. Hover over the translucent blue plane to see the storage constraint.</i>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// SHARED GRAPHICS FUNCTIONS
+// ============================================================
+
+function createTriangleMesh(v1, v2, v3, color, opacity, name) {
+    return {
+        type: 'mesh3d',
+        x: [v1[0], v2[0], v3[0]],
+        y: [v1[1], v2[1], v3[1]],
+        z: [v1[2], v2[2], v3[2]],
+        i: [0], j: [1], k: [2],
+        color: color,
+        opacity: opacity,
+        flatshading: true,
+        name: name,
+        showlegend: true,
+        hoverinfo: 'name',
+        hoverlabel: { font: { size: 13 } }
+    };
+}
+
+function createLine(p1, p2, color, width) {
+    return {
+        type: 'scatter3d',
+        mode: 'lines',
+        x: [p1[0], p2[0]],
+        y: [p1[1], p2[1]],
+        z: [p1[2], p2[2]],
+        line: { color: color, width: width },
+        showlegend: false,
+        hoverinfo: 'none'
+    };
+}
+
+// ============================================================
+// BUILD SCENARIO 1
+// ============================================================
+
+function buildPlot() {
+    let traces = [];
+
+    let V1 = [160, 520, 120];
+    let V2 = [160, 320, 320];
+    let V3 = [360, 320, 120];
+
+    traces.push(createTriangleMesh(V1, V2, V3, '#636efa', 0.82,
+        '✅ Feasible Region\n(x₁ + x₂ + x₃ = 800)'));
+
+    traces.push(createLine(V1, V2, '#a0b4ff', 6));
+    traces.push(createLine(V2, V3, '#a0b4ff', 6));
+    traces.push(createLine(V3, V1, '#a0b4ff', 6));
+
+    let allVerts = [V1, V2, V3];
+    traces.push({
+        type: 'scatter3d',
+        mode: 'markers+text',
+        x: allVerts.map(v => v[0]),
+        y: allVerts.map(v => v[1]),
+        z: allVerts.map(v => v[2]),
+        marker: {
+            size: 9,
+            color: '#ffffff',
+            symbol: 'circle',
+            line: { color: '#636efa', width: 3 }
+        },
+        text: [
+            'V₁ (160, 520, 120)',
+            'V₂ (160, 320, 320)',
+            'V₃ (360, 320, 120)'
+        ],
+        textposition: 'top center',
+        textfont: { size: 12, color: '#ffffff' },
+        name: 'Vertices',
+        showlegend: false,
+        hoverinfo: 'text'
+    });
+
+    let planeVerts = [[800,0,0], [0,800,0], [0,0,800]];
+    traces.push(createTriangleMesh(planeVerts[0], planeVerts[1], planeVerts[2],
+        'rgba(99,110,250,0.22)', 0.48,
+        '🔷 Storage Plane: x₁ + x₂ + x₃ = 800'));
+
+    let layout = {
+        scene: {
+            xaxis: {
+                title: 'x₁ — Apples (tonnes)',
+                range: [0, 850],
+                titlefont: { size: 13, color: '#c9d1d9' },
+                gridcolor: '#30363d',
+                zerolinecolor: '#484f58'
+            },
+            yaxis: {
+                title: 'x₂ — Plums (tonnes)',
+                range: [0, 850],
+                titlefont: { size: 13, color: '#c9d1d9' },
+                gridcolor: '#30363d',
+                zerolinecolor: '#484f58'
+            },
+            zaxis: {
+                title: 'x₃ — Oranges (tonnes)',
+                range: [0, 850],
+                titlefont: { size: 13, color: '#c9d1d9' },
+                gridcolor: '#30363d',
+                zerolinecolor: '#484f58'
+            },
+            aspectmode: 'cube',
+            bgcolor: '#161b22'
+        },
+        showlegend: true,
+        legend: {
+            x: 0.02,
+            y: 0.98,
+            bgcolor: 'rgba(22,27,34,0.96)',
+            font: { color: '#c9d1d9', size: 12 },
+            bordercolor: '#30363d',
+            borderwidth: 1
+        },
+        margin: { l: 0, r: 0, t: 0, b: 0 },
+        paper_bgcolor: '#161b22',
+        font: { color: '#c9d1d9' }
+    };
+
+    Plotly.newPlot('plot', traces, layout, {
+        displayModeBar: true,
+        responsive: true,
+        modeBarButtonsToRemove: ['sendDataToCloud']
+    });
+}
+
+// Wait for the DOM to be fully loaded before building the plot
+window.addEventListener('DOMContentLoaded', function() {
+    buildPlot();
+});
+
+// Handle window resizing
+window.addEventListener('resize', function() {
+    Plotly.Plots.resize(document.getElementById('plot'));
+});
+</script>
+
+</body>
+</html>
