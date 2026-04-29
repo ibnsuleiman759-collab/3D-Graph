@@ -83,6 +83,10 @@
     </div>
 </div>
 
+
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js" 
+        onload="buildPlot()">
+</script>
 <script>
 // ============================================================
 // SHARED GRAPHICS FUNCTIONS
@@ -123,11 +127,18 @@ function createLine(p1, p2, color, width) {
 // ============================================================
 
 function buildPlot() {
-    let traces = [];
+    // Check if div exists
+    var plotDiv = document.getElementById('plot');
+    if (!plotDiv) {
+        console.error('Plot div not found!');
+        return;
+    }
 
-    let V1 = [160, 520, 120];
-    let V2 = [160, 320, 320];
-    let V3 = [360, 320, 120];
+    var V1 = [160, 520, 120];
+    var V2 = [160, 320, 320];
+    var V3 = [360, 320, 120];
+
+    var traces = [];
 
     traces.push(createTriangleMesh(V1, V2, V3, '#636efa', 0.82,
         '✅ Feasible Region\n(x₁ + x₂ + x₃ = 800)'));
@@ -136,13 +147,13 @@ function buildPlot() {
     traces.push(createLine(V2, V3, '#a0b4ff', 6));
     traces.push(createLine(V3, V1, '#a0b4ff', 6));
 
-    let allVerts = [V1, V2, V3];
+    var allVerts = [V1, V2, V3];
     traces.push({
         type: 'scatter3d',
         mode: 'markers+text',
-        x: allVerts.map(v => v[0]),
-        y: allVerts.map(v => v[1]),
-        z: allVerts.map(v => v[2]),
+        x: allVerts.map(function(v) { return v[0]; }),
+        y: allVerts.map(function(v) { return v[1]; }),
+        z: allVerts.map(function(v) { return v[2]; }),
         marker: {
             size: 9,
             color: '#ffffff',
@@ -161,12 +172,12 @@ function buildPlot() {
         hoverinfo: 'text'
     });
 
-    let planeVerts = [[800,0,0], [0,800,0], [0,0,800]];
+    var planeVerts = [[800,0,0], [0,800,0], [0,0,800]];
     traces.push(createTriangleMesh(planeVerts[0], planeVerts[1], planeVerts[2],
         'rgba(99,110,250,0.22)', 0.48,
         '🔷 Storage Plane: x₁ + x₂ + x₃ = 800'));
 
-    let layout = {
+    var layout = {
         scene: {
             xaxis: {
                 title: 'x₁ — Apples (tonnes)',
@@ -211,17 +222,9 @@ function buildPlot() {
         responsive: true,
         modeBarButtonsToRemove: ['sendDataToCloud']
     });
+
+    console.log('Plot built successfully!');
 }
-
-// Wait for the DOM to be fully loaded before building the plot
-window.addEventListener('DOMContentLoaded', function() {
-    buildPlot();
-});
-
-// Handle window resizing
-window.addEventListener('resize', function() {
-    Plotly.Plots.resize(document.getElementById('plot'));
-});
 </script>
 
 </body>
